@@ -1,7 +1,6 @@
 package com.wrbug.dumpdex;
 
 import android.os.Build;
-import android.text.TextUtils;
 import android.util.Log;
 import com.wrbug.dumpdex.dump.LowSdkDump;
 import com.wrbug.dumpdex.dump.OreoDump;
@@ -32,24 +31,12 @@ public class XposedInit implements IXposedHookLoadPackage {
     Log.e(TAG, t.getMessage());
   }
 
-  private static volatile boolean isDumping;
-  private static volatile String pName;
-
   @Override public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam) {
-    if (isDumping) {
-      return;
-    }
-    if (!isDumping && TextUtils.isEmpty(pName)) {
-      pName = MainActivity.readFile(FILE_PATH);
-      Log.e(TAG, "target packageName " + pName);
-    }
-    if (TextUtils.isEmpty(pName)) {
-      return;
-    }
+    String pName = MainActivity.readFile(FILE_PATH);
+    Log.e(TAG, "target packageName " + pName);
 
     final String packageName = lpparam.packageName;
     if (pName.equals(packageName)) {
-      isDumping = true;
       String path = "/data/data/" + packageName + "/dump";
       File parent = new File(path);
       if (!parent.exists() || !parent.isDirectory()) {
